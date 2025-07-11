@@ -1,0 +1,77 @@
+import numpy as np
+import pandas as pd
+
+# --- Parameters ---
+n_classes = 4
+trials_per_class = 1000
+n_trials = n_classes * trials_per_class
+n_channels = 16
+sampling_rate = 256  # Hz
+duration = 2  # seconds
+n_samples = int(sampling_rate * duration)
+time = np.arange(n_samples) / sampling_rate
+classes = ['apple', 'banana', 'bottle', 'baseline']
+
+# --- Generate Data ---
+features_list = []
+labels_list = []
+
+for trial_idx in range(n_trials):
+    trial_data = np.zeros((n_channels, n_samples))
+    
+    # Assign label based on trial index
+    class_idx = trial_idx // trials_per_class
+    label = classes[class_idx]
+
+    # Generate baseline activity for all channels
+    for ch in range(n_channels):
+        alpha_wave = np.random.uniform(0.5, 1.5) * np.sin(2 * np.pi * np.random.uniform(8, 12) * time)
+        beta_wave = np.random.uniform(0.2, 0.8) * np.sin(2 * np.pi * np.random.uniform(13, 25) * time)
+        noise = np.random.normal(0, 0.5, n_samples)
+        trial_data[ch, :] = alpha_wave + beta_wave + noise
+
+    # --- Add the unique "thought" signature based on the class ---
+    start_sample = int(0.5 * sampling_rate) # Add signature at 0.5 seconds
+
+    if label == 'apple':
+        # Signature: High-frequency gamma burst on channels 2, 5, 10
+        burst_time = np.arange(int(0.2 * sampling_rate)) / sampling_rate
+        burst_signal = 3 * np.sin(2 * np.pi * 40 * burst_time) # 40 Hz
+        for target_ch in [2, 5, 10]:
+             trial_data[target_ch, start_sample:start_sample + len(burst_signal)] += burst_signal
+    
+    elif label == 'banana':
+        # Signature: Mid-frequency beta burst on channels 3, 7, 12
+        burst_time = np.arange(int(0.3 * sampling_rate)) / sampling_rate
+        burst_signal = 2.5 * np.sin(2 * np.pi * 25 * burst_time) # 25 Hz
+        for target_ch in [3, 7, 12]:
+            trial_data[target_ch, start_sample:start_sample + len(burst_signal)] += burst_signal
+
+    elif label == 'bottle':
+        # Signature: Alpha wave amplification on channels 1, 8, 14
+        amp_window = np.zeros(n_samples)
+        amp_window[start_sample:start_sample+int(0.5*sampling_rate)] = 1.5 # Amplify by 150%
+        for target_ch in [1, 8, 14]:
+            trial_data[target_ch, :] += trial_data[target_ch, :] * amp_window
+            
+    # Flatten the trial data (16 channels * 512 samples = 8192 features)
+    flat_features = trial_data.flatten()
+    features_list.append(flat_features)
+    labels_list.append(label)
+
+# --- Create DataFrame ---
+column_names = [f'ch{ch+1}_t{t}' for ch in range(n_channels) for t in range(n_samples)]
+df = pd.DataFrame(features_list, columns=column_names)
+df['label'] = labels_list
+
+# Shuffle the dataset
+df = df.sample(frac=1).reset_index(drop=True)
+
+# --- Display Preview and Save ---
+print("Generated Multi-Class Data Preview:")
+print(df.head())
+print("\nDataset Shape:", df.shape)
+print("\nClass Distribution:")
+print(df['label'].value_counts())
+
+df.to_csv('synthetic_brain_signal_multiclass.csv', index=False)
