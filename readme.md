@@ -109,7 +109,7 @@ Power Spectral Density plots confirm the unique frequency peaks for each class. 
 A t-SNE plot visualizes the high-dimensional data in 2D. The clear separation between clusters confirms that the classes are distinct and a machine learning model should be able to classify them effectively.
 
 ## 🧠 Modeling & Results
-###(Future Development)
+### (Future Development)
 
 *(This section would be filled in after building the model)*
 
