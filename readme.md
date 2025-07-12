@@ -109,6 +109,7 @@ Power Spectral Density plots confirm the unique frequency peaks for each class. 
 A t-SNE plot visualizes the high-dimensional data in 2D. The clear separation between clusters confirms that the classes are distinct and a machine learning model should be able to classify them effectively.
 
 ## 🧠 Modeling & Results
+###(Future Development)
 
 *(This section would be filled in after building the model)*
 
@@ -124,7 +125,7 @@ A 1D Convolutional Neural Network (CNN) was chosen for this task due to its effe
 
 ### Performance:
 - The model achieved an overall accuracy of **XX.X%** on the test set
-- **Confusion Matrix**: *(Insert confusion matrix image here)*
+- **Confusion Matrix**: *Coming soon*
 - The confusion matrix shows that the model performs well across all classes, with minor confusion between the baseline and bottle classes
 
 ## 🔮 Future Work
